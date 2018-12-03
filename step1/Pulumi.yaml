@@ -1,0 +1,5 @@
+name: dockercon-step1
+runtime: nodejs
+description: Step 1 of my DockerCon EU 2018 talk.
+template:
+  description: A minimal TypeScript Pulumi program

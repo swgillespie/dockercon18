@@ -1,0 +1,30 @@
+{
+  "name": "dockercon-pulumi-redis",
+  "version": "0.1.0",
+  "description": "Pulumi component for Redis instances, as demoed in a talk for DockerCon EU 2018",
+  "main": "bin/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swgillespie/dockercon18.git"
+  },
+  "keywords": [
+    "pulumi",
+    "dockercon",
+    "redis"
+  ],
+  "author": "Sean Gillespie <sean@pulumi.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/swgillespie/dockercon18/issues"
+  },
+  "homepage": "https://github.com/swgillespie/dockercon18#readme",
+  "dependencies": {
+    "@pulumi/pulumi": "^0.16.6",
+    "@pulumi/kubernetes": "^0.17.5",
+    "@pulumi/aws": "^0.16.2",
+    "@pulumi/docker": "latest"
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "name": "dockercon-step1",
+    "devDependencies": {
+        "@types/node": "latest"
+    },
+    "dependencies": {
+        "@pulumi/aws": "^0.16.2",
+        "@pulumi/kubernetes": "^0.17.5",
+        "@pulumi/pulumi": "latest",
+        "@pulumi/docker": "latest"
+    }
+}
