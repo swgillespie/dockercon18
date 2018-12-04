@@ -1,6 +1,10 @@
 import * as docker from "@pulumi/docker";
+
+// Now that we've pulled Redis into its own file, import it here.
 import {Redis} from "./redis";
 
+// We still have to create the docker Network, but we can also create a Redis resource as if it were
+// any other resource and pass it the network as a parameter.
 const network = new docker.Network("net");
 const redis = new Redis("redis", {
     network: network,

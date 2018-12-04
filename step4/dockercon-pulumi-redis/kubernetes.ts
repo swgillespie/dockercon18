@@ -20,7 +20,7 @@ export class KubernetesRedis extends Redis {
 
     constructor(name: string, args: KubernetesRedisArgs, opts?: pulumi.ComponentResourceOptions) {
         super("dockercon:k8s:Redis", name, args, opts);
-        const childOpts = Object.assign({ parent: this }, opts);
+        const childOpts = { ...opts, parent: this };
         const labels = { app: name };
         const deploy = new k8s.apps.v1.Deployment(`${name}-deploy`, {
             metadata: {

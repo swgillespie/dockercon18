@@ -15,6 +15,7 @@ import * as pulumi from "@pulumi/pulumi";
 
 import {DockerRedis, DockerRedisArgs} from "./docker";
 import {KubernetesRedis, KubernetesRedisArgs} from "./kubernetes";
+import {AmazonRedis, AmazonRedisArgs} from "./amazon";
 
 export abstract class Redis extends pulumi.ComponentResource {
     public abstract readonly host: pulumi.Output<string>;
@@ -25,6 +26,8 @@ export abstract class Redis extends pulumi.ComponentResource {
             return new DockerRedis(name, args, opts);
         case "kubernetes":
             return new KubernetesRedis(name, args, opts);
+        case "amazon":
+            return new AmazonRedis(name, args, opts);
         }
     }
 
@@ -33,4 +36,4 @@ export abstract class Redis extends pulumi.ComponentResource {
     }
 }
 
-export type RedisArgs = DockerRedisArgs | KubernetesRedisArgs;
+export type RedisArgs = DockerRedisArgs | KubernetesRedisArgs | AmazonRedisArgs;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import * as pulumi from "@pulumi/pulumi";
-// import * as docker from "@pulumi/docker";
+import * as docker from "@pulumi/docker";
 import {Redis} from "./index";
 
 export class DockerRedis extends Redis {
@@ -20,9 +20,26 @@ export class DockerRedis extends Redis {
 
     constructor(name: string, args: DockerRedisArgs, opts?: pulumi.ComponentResourceOptions) {
         super("dockercon:docker:Redis", name, args, opts);
+        const childOpts = { ...opts, parent: this }
+        const redisImage = new docker.RemoteImage(`${name}-image`, {
+            name: "redis:latest",
+            keepLocally: true,
+        }, childOpts);
+
+        const redisContainer = new docker.Container(`${name}-container`, {
+            image: redisImage.name,
+            networksAdvanced: [{ name: args.network.name }],
+            restart: "on-failure",
+        }, childOpts);
+
+        this.host = redisContainer.name;
+        this.registerOutputs({
+            host: this.host,
+        });
     }
 }
 
 export interface DockerRedisArgs {
     type: "docker",
+    network: docker.Network;
 }

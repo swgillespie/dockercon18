@@ -3,9 +3,8 @@ import {Redis} from "./redis";
 
 const network = new docker.Network("net");
 const redis = Redis.create("redis", {
-    // docker: {network: network},
-    // kubernetes: {},
-    amazon: {},
+    type: "docker",
+    network: network,
 });
 
 const redisCommanderImage = new docker.RemoteImage("redis-commander-image", {

@@ -3,23 +3,24 @@ import * as pulumi from "@pulumi/pulumi";
 import * as docker from "@pulumi/docker";
 import * as k8s from "@pulumi/kubernetes";
 
+// Since we're using a general-purpose programming language, we can now use that language to provide multiple
+// implementations of the same abstraction. In this case, we define an abstract "Redis" component whose only property is
+// that it has some network identity (host) that consumers can connect to and talk to a Redis connection.
 export abstract class Redis extends pulumi.ComponentResource {
     public abstract readonly host: pulumi.Output<string>;
 
     public static create(name: string, args: RedisArgs, opts?: pulumi.ComponentResourceOptions): Redis {
-        if (args.docker) {
-            return new DockerRedis(name, args.docker, opts);
+        // Since we are using TypeScript and RedisArgs is the union of argument types for each resource. Since args.type
+        // has type "amazon" | "docker" | "kubernetes", the compiler assists us in making sure that we don't
+        // accidentally mix up argument types.
+        switch (args.type) {
+        case "amazon":
+            return new AmazonRedis(name, args, opts);
+        case "docker":
+            return new DockerRedis(name, args, opts);
+        case "kubernetes":
+            return new KubernetesRedis(name, args, opts);
         }
-
-        if (args.kubernetes) {
-            return new KubernetesRedis(name, args.kubernetes, opts);
-        }
-
-        if (args.amazon) {
-            return new AmazonRedis(name, args.amazon, opts);
-        }
-
-        throw new Error("don't know what to make!");
     }
 
     constructor(ty: string, name: string, args: RedisArgs, opts?: pulumi.ComponentResourceOptions) {
@@ -27,18 +28,14 @@ export abstract class Redis extends pulumi.ComponentResource {
     }
 }
 
-export interface RedisArgs {
-    docker?: DockerRedisArgs;
-    kubernetes?: KubernetesRedisArgs;
-    amazon?: AmazonRedisArgs;
-}
+export type RedisArgs = DockerRedisArgs | KubernetesRedisArgs | AmazonRedisArgs;
 
 class DockerRedis extends pulumi.ComponentResource {
     public readonly host: pulumi.Output<string>;
 
     constructor(name: string, args: DockerRedisArgs, opts?: pulumi.ComponentResourceOptions) {
         super("dockercon:docker:Redis", name, args, opts);
-        const childOpts = Object.assign({ parent: this }, opts);
+        const childOpts = { ...opts, parent: this };
         const redisImage = new docker.RemoteImage(`${name}-image`, {
             name: "redis:latest",
             keepLocally: true,
@@ -58,15 +55,17 @@ class DockerRedis extends pulumi.ComponentResource {
 }
 
 export interface DockerRedisArgs {
+    type: "docker";
     network: docker.Network;
 }
 
-class KubernetesRedis extends pulumi.ComponentResource {
+// KubernetesRedis is an implementation of the Redis abstraction, using a deployment on a Kubernetes cluster.
+class KubernetesRedis extends Redis {
     public readonly host: pulumi.Output<string>;
 
     constructor(name: string, args: KubernetesRedisArgs, opts?: pulumi.ComponentResourceOptions) {
         super("dockercon:k8s:Redis", name, args, opts);
-        const childOpts = Object.assign({ parent: this }, opts);
+        const childOpts = { ...opts, parent: this }
         const labels = {app: "redis"};
         const redisDeployment = new k8s.apps.v1.Deployment(`${name}-deploy`, {
             metadata: {
@@ -115,14 +114,17 @@ class KubernetesRedis extends pulumi.ComponentResource {
     }
 }
 
-export interface KubernetesRedisArgs {}
+export interface KubernetesRedisArgs {
+    type: "kubernetes";
+}
 
+// AmazonRedis is an implementation of the Redis abstraction, using AWS ElastiCache.
 class AmazonRedis extends Redis {
     public readonly host: pulumi.Output<string>;
 
     constructor(name: string, args: AmazonRedisArgs, opts?: pulumi.ComponentResourceOptions) {
         super("dockercon:aws:Redis", name, args, opts);
-        const childOpts = Object.assign({ parent: this }, opts);
+        const childOpts = { ...opts, parent: this };
         const cluster = new aws.elasticache.Cluster(`${name}-ec`, {
             engine: "redis",
             nodeType: "cache.t2.micro",
@@ -136,4 +138,6 @@ class AmazonRedis extends Redis {
     }
 }
 
-export interface AmazonRedisArgs {}
+export interface AmazonRedisArgs {
+    type: "amazon";
+}
