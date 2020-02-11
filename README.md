@@ -1,7 +1,7 @@
 # Code for DockerCon EU 2018
 
-The code in this repo was used in a live demonstration talk for DockerCon EU 2018, titled "Programming the Cloud Using
-Containers as the Building Block".
+The code in this repo was used in a live demonstration talk for DockerCon EU 2018, titled ["Programming the Cloud Using
+Containers as the Building Block"](https://www.youtube.com/watch?v=EbsE4p3uCu0).
 
 In this talk, we construct an application consisting of a Redis instance and a [Redis
 Commander](https://github.com/joeferner/redis-commander) instance. (Thanks to Joe Ferner for creating Redis Commander!)
